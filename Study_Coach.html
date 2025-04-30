@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Coach - Stay Focused!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #timer {
+            text-align: center;
+            font-size: 2rem;
+            margin: 20px 0;
+        }
+        #block-message {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #e74c3c;
+            display: none;
+        }
+        .progress-bar {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .progress {
+            height: 30px;
+            width: 0;
+            background-color: #27ae60;
+            text-align: center;
+            color: white;
+            line-height: 30px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🚀 Study Coach - Stay Focused!</h1>
+
+    <div class="container">
+        <p>Click the button below to start a focused study session. The Pomodoro technique will automatically block distractions for 25 minutes, followed by a 5-minute break.</p>
+
+        <button id="startBtn">Start Study Session</button>
+        
+        <div id="timer"></div>
+        <div id="block-message">⛔ You are trying to visit a blocked site! Focus and study! ⛔</div>
+
+        <div class="progress-bar">
+            <div class="progress" id="progressBar">0%</div>
+        </div>
+    </div>
+
+    <script>
+        let studyTime = 25 * 60; // 25 minutes in seconds
+        let breakTime = 5 * 60; // 5 minutes in seconds
+        let timerInterval;
+        let progressInterval;
+        let isStudying = false;
+
+        const startBtn = document.getElementById("startBtn");
+        const timerDisplay = document.getElementById("timer");
+        const progressBar = document.getElementById("progressBar");
+        const blockMessage = document.getElementById("block-message");
+
+        startBtn.addEventListener('click', startStudySession);
+
+        function startStudySession() {
+            if (isStudying) {
+                alert("You are already studying!");
+                return;
+            }
+
+            isStudying = true;
+            startBtn.disabled = true;
+            startPomodoro(studyTime);
+        }
+
+        function startPomodoro(seconds) {
+            let remainingTime = seconds;
+            let minutes, secondsLeft;
+            clearInterval(timerInterval);
+            clearInterval(progressInterval);
+
+            // Timer countdown
+            timerInterval = setInterval(function() {
+                minutes = Math.floor(remainingTime / 60);
+                secondsLeft = remainingTime % 60;
+                timerDisplay.textContent = `${minutes}:${secondsLeft < 10 ? "0" : ""}${secondsLeft}`;
+                remainingTime--;
+
+                if (remainingTime < 0) {
+                    clearInterval(timerInterval);
+                    blockMessage.style.display = 'none'; // Hide block message
+                    startBreak();
+                }
+            }, 1000);
+
+            // Progress bar
+            let progress = 0;
+            progressInterval = setInterval(function() {
+                progress += 100 / (seconds);
+                progressBar.style.width = progress + '%';
+                progressBar.textContent = Math.round(progress) + '%';
+            }, 1000);
+        }
+
+        function startBreak() {
+            // Show break time message and reset
+            timerDisplay.textContent = "Time for a 5-minute break!";
+            blockMessage.style.display = 'none'; // Hide block message
+
+            setTimeout(() => {
+                isStudying = false;
+                startBtn.disabled = false;
+                startBtn.textContent = "Start Another Study Session";
+            }, breakTime * 1000); // Wait for 5 minutes break time before ending the session
+        }
+
+        // Block distracting websites during study session
+        setInterval(function() {
+            let blockedSites = ["facebook.com", "youtube.com", "instagram.com"]; // Example blocked sites
+
+            blockedSites.forEach(site => {
+                if (window.location.href.includes(site)) {
+                    blockMessage.style.display = 'block';
+                    alert("You're on a blocked website! Stay focused.");
+                    window.location.href = "about:blank"; // Redirect to blank page
+                }
+            });
+        }, 1000);
+
+    </script>
+</body>
+</html>
